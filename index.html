@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Enkripsi Teks dengan AES -->
+    <title>Enkripsi dan Dekripsi by Faizal Dwi Al Farizi</title>
+    <link rel="shortcut icon" href="assets/img/logo/sib.webp" type="image/x-icon">
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <script src="plugins/crypto/crypto-js.min.js"></script>
+</head>
+
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Enkripsi dan Dekripsi by Faizal Dwi Al Farizi</h2>
+                <form>
+                    <div class="mb-3">
+                        <textarea id="inputText" class="form-control" placeholder="Masukkan teks di sini..."
+                            rows="4"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="key" class="form-label">Kunci (Key):</label>
+                        <input type="text" id="key" class="form-control" placeholder="Masukkan kunci">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary" onclick="encryptText()">Enkripsi</button>
+                        <button type="button" class="btn btn-secondary" onclick="decryptText()">Dekripsi</button>
+                    </div>
+                </form>
+                <div id="output" class="alert alert-secondary mt-4 p-4 rounded position-relative"
+                    style="display: none;">
+                    <button type="button" class="btn btn-sm btn-success position-absolute top-0 end-0 m-2"
+                        onclick="copyToClipboard()">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                    <h5 class="mb-3 text-primary" id="keterangan"></h5>
+                    <pre id="outputText" class="mb-0 text-dark bg-light p-3 rounded border border-1"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function encryptText() {
+            const text = document.getElementById('inputText').value;
+            const key = document.getElementById('key').value;
+
+            if (!text || !key) {
+                alert('Masukkan teks dan kunci untuk dienkripsi!');
+                return;
+            }
+
+            const encrypted = CryptoJS.AES.encrypt(text, key).toString();
+            document.getElementById('keterangan').innerText = "Hasil Enkripsi";
+            document.getElementById('outputText').innerText = `${encrypted}`;
+            document.getElementById('output').style.display = 'block';
+        }
+
+        function decryptText() {
+            const text = document.getElementById('inputText').value;
+            const key = document.getElementById('key').value;
+
+            if (!text || !key) {
+                alert('Masukkan teks terenkripsi dan kunci untuk didekripsi!');
+                return;
+            }
+
+            try {
+                const decrypted = CryptoJS.AES.decrypt(text, key).toString(CryptoJS.enc.Utf8);
+                if (!decrypted) throw new Error('Kunci salah atau data tidak valid');
+                document.getElementById('keterangan').innerText = "Hasil Dekripsi";
+                document.getElementById('outputText').innerText = `${decrypted}`;
+                document.getElementById('output').style.display = 'block';
+            } catch (error) {
+                alert('Gagal mendekripsi teks. Periksa kunci dan teks yang dimasukkan!');
+            }
+        }
+
+        function copyToClipboard() {
+            const outputText = `${document.getElementById('outputText').innerHTML}\n\n\n\nCreated by Faizal Dwi Al farizi`; // Ambil teks tanpa spasi ekstra
+
+            if (!outputText) {
+                alert('Tidak ada teks untuk disalin!');
+                return;
+            }
+
+            navigator.clipboard.writeText(outputText).then(() => {
+                alert('Teks hasil berhasil disalin ke clipboard!');
+            }).catch(err => {
+                console.error('Gagal menyalin teks: ', err);
+            });
+        }
+    </script>
+</body>
+
+</html>
+
+U2FsdGVkX1/rs/L6d6mUQngvdGIULWo3B5xYCV1EeFU=
+
+
+Created by Faizal Dwi Al farizi

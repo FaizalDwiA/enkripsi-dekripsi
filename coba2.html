@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enkripsi Teks dengan AES</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            background: #e9ecef;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .copy-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script> -->
+    <script src="crypto-js.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Enkripsi dan Dekripsi Teks dengan AES</h2>
+        <textarea id="inputText" placeholder="Masukkan teks di sini..."></textarea>
+        <label for="key">Kunci (Key): </label>
+        <input type="text" id="key" placeholder="Masukkan kunci" />
+        <br><br>
+        <button onclick="encryptText()">Enkripsi</button>
+        <button onclick="decryptText()">Dekripsi</button>
+
+        <div id="output" class="result">
+            <button class="copy-btn" onclick="copyToClipboard()">Copy</button>
+            <span id="outputText"></span>
+        </div>
+    </div>
+
+    <script>
+        function encryptText() {
+            const text = document.getElementById('inputText').value;
+            const key = document.getElementById('key').value;
+
+            if (!text || !key) {
+                alert('Masukkan teks dan kunci untuk dienkripsi!');
+                return;
+            }
+
+            const encrypted = CryptoJS.AES.encrypt(text, key).toString();
+            document.getElementById('outputText').innerText = `Hasil Enkripsi: \n\n${encrypted}`;
+        }
+
+        function decryptText() {
+            const text = document.getElementById('inputText').value;
+            const key = document.getElementById('key').value;
+
+            if (!text || !key) {
+                alert('Masukkan teks terenkripsi dan kunci untuk didekripsi!');
+                return;
+            }
+
+            try {
+                const decrypted = CryptoJS.AES.decrypt(text, key).toString(CryptoJS.enc.Utf8);
+                if (!decrypted) throw new Error('Kunci salah atau data tidak valid');
+                document.getElementById('outputText').innerText = `Hasil Dekripsi: \n\n${decrypted}`;
+            } catch (error) {
+                alert('Gagal mendekripsi teks. Periksa kunci dan teks yang dimasukkan!');
+            }
+        }
+
+        teks = "faizal dwi al farizi"
+        let ek = CryptoJS.AES.encrypt(text, key).toString();
+        let dk = CryptoJS.AES.decrypt(text, key).toString(CryptoJS.enc.Utf8)
+
+        function copyToClipboard() {
+            const outputText = document.getElementById('outputText').innerText;
+            if (!outputText) {
+                alert('Tidak ada teks untuk disalin!');
+                return;
+            }
+
+            navigator.clipboard.writeText(outputText).then(() => {
+                alert('Teks berhasil disalin ke clipboard!');
+            }).catch(err => {
+                console.error('Gagal menyalin teks: ', err);
+            });
+        }
+    </script>
+</body>
+
+</html>

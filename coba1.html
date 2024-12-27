@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enkripsi Teks</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            background: #e9ecef;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .copy-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Enkripsi dan Dekripsi Teks</h2>
+        <textarea id="inputText" placeholder="Masukkan teks di sini..."></textarea>
+        <label for="key">Kunci (Key): </label>
+        <input type="text" id="key" placeholder="Masukkan kunci" />
+        <br><br>
+        <button onclick="encryptText()">Enkripsi</button>
+        <button onclick="decryptText()">Dekripsi</button>
+
+        <div id="output" class="result">
+            <button class="copy-btn" onclick="copyToClipboard()">Copy</button>
+            <span id="outputText"></span>
+        </div>
+    </div>
+
+    <script>
+        function vigenereCipher(text, key, isEncrypt = true) {
+            const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+            const fullKey = key.toLowerCase().repeat(Math.ceil(text.length / key.length));
+
+            return text.split('').map((char, i) => {
+                const isUpperCase = char === char.toUpperCase();
+                const lowerChar = char.toLowerCase();
+
+                if (alphabet.includes(lowerChar)) {
+                    const textIndex = alphabet.indexOf(lowerChar);
+                    const keyIndex = alphabet.indexOf(fullKey[i]);
+
+                    let newIndex = isEncrypt
+                        ? (textIndex + keyIndex) % 26
+                        : (textIndex - keyIndex + 26) % 26;
+
+                    const newChar = alphabet[newIndex];
+                    return isUpperCase ? newChar.toUpperCase() : newChar;
+                }
+                return char;
+            }).join('');
+        }
+
+        function encryptText() {
+            const text = document.getElementById('inputText').value;
+            const key = document.getElementById('key').value;
+
+            if (!text || !key) {
+                alert('Masukkan teks dan kunci untuk dienkripsi!');
+                return;
+            }
+
+            const encrypted = vigenereCipher(text, key, true);
+            document.getElementById('outputText').innerText = `Hasil Enkripsi: ${encrypted}`;
+        }
+
+        function decryptText() {
+            const text = document.getElementById('inputText').value;
+            const key = document.getElementById('key').value;
+
+            if (!text || !key) {
+                alert('Masukkan teks dan kunci untuk didekripsi!');
+                return;
+            }
+
+            const decrypted = vigenereCipher(text, key, false);
+            document.getElementById('outputText').innerText = `Hasil Dekripsi: ${decrypted}`;
+        }
+
+        function copyToClipboard() {
+            const outputText = document.getElementById('outputText').innerText;
+            if (!outputText) {
+                alert('Tidak ada teks untuk disalin!');
+                return;
+            }
+
+            navigator.clipboard.writeText(outputText).then(() => {
+                alert('Teks berhasil disalin ke clipboard!');
+            }).catch(err => {
+                console.error('Gagal menyalin teks: ', err);
+            });
+        }
+    </script>
+</body>
+
+</html>
