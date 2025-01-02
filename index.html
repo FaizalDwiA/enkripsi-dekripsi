@@ -9,37 +9,74 @@
     <link rel="shortcut icon" href="assets/img/logo/sib.webp" type="image/x-icon">
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <script src="plugins/crypto/crypto-js.min.js"></script>
+    <style>
+        .input-faizal {
+            background-color: #000;
+            border: 1px solid #0f0;
+            color: #0f0;
+            outline: #0f0;
+            display: block;
+            width: 100%;
+            padding: .375rem .75rem;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            border-radius: .25rem;
+        }
+
+        .input-faizal::placeholder {
+            color: #0f0;
+            opacity: .5;
+        }
+
+        .input-faizal:focus {
+            border-color: #0f0;
+            /* Warna border hijau saat fokus */
+            outline-color: #0f0;
+            /* Warna outline hijau saat fokus */
+            box-shadow: 0 0 5px #0f0;
+            /* Efek hijau bersinar saat fokus */
+        }
+
+        .button-faizal {
+            background-color: #0f0;
+            border: 1px solid #0f0;
+            color: #000;
+            font-weight: bold;
+        }
+
+        #output {
+            border: 1px solid #0f0;
+        }
+
+        .text-faizal {
+            color: #0f0 !important;
+        }
+    </style>
 </head>
 
-<body class="bg-light">
-    <div class="container py-5">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h2 class="card-title text-center mb-4">Enkripsi dan Dekripsi by Faizal Dwi Al Farizi</h2>
-                <form>
-                    <div class="mb-3">
-                        <textarea id="inputText" class="form-control" placeholder="Masukkan teks di sini..."
-                            rows="4"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="key" class="form-label">Kunci (Key):</label>
-                        <input type="text" id="key" class="form-control" placeholder="Masukkan kunci">
-                    </div>
-                    <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-primary" onclick="encryptText()">Enkripsi</button>
-                        <button type="button" class="btn btn-secondary" onclick="decryptText()">Dekripsi</button>
-                    </div>
-                </form>
-                <div id="output" class="alert alert-secondary mt-4 p-4 rounded position-relative"
-                    style="display: none;">
-                    <button type="button" class="btn btn-sm btn-success position-absolute top-0 end-0 m-2"
-                        onclick="copyToClipboard()">
-                        <i class="fas fa-copy"></i> Copy
-                    </button>
-                    <h5 class="mb-3 text-primary" id="keterangan"></h5>
-                    <pre id="outputText" class="mb-0 text-dark bg-light p-3 rounded border border-1"></pre>
-                </div>
+<body style="background-color: #000;">
+    <div class="card-body">
+        <form>
+            <div class="mb-3">
+                <textarea id="inputText" class="input-faizal" style="" placeholder="Tulis Pesan" rows="4"></textarea>
             </div>
+            <div class="mb-3">
+                <input type="text" id="key" class="input-faizal" placeholder="Masukkan kunci">
+            </div>
+            <div class="d-grid gap-2">
+                <button type="button" class="btn btn-primary button-faizal" onclick="encryptText()">Enkripsi</button>
+                <button type="button" class="btn btn-danger button-faizal" onclick="decryptText()">Dekripsi</button>
+            </div>
+        </form>
+        <div id="output" class="alert mt-4 p-4 rounded position-relative" style="display: none;">
+            <button type="button" class="btn btn-sm btn-success position-absolute top-0 end-0 m-2"
+                onclick="copyToClipboard()">
+                <i class="fas fa-copy"></i> Copy
+            </button>
+            <h5 class="mb-3 text-faizal" id="keterangan"></h5>
+            <pre id="outputText" class="mb-0 p-3 text-faizal rounded border border-1"
+                style="border: 1px solid #0f0 !important"></pre>
         </div>
     </div>
 
@@ -80,7 +117,7 @@
         }
 
         function copyToClipboard() {
-            const outputText = `${document.getElementById('outputText').innerHTML}\n\n\n\nCreated by Faizal Dwi Al farizi`; // Ambil teks tanpa spasi ekstra
+            const outputText = `${document.getElementById('outputText').innerHTML}`;
 
             if (!outputText) {
                 alert('Tidak ada teks untuk disalin!');
