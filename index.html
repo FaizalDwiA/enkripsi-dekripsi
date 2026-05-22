@@ -4,130 +4,526 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Enkripsi Teks dengan AES -->
-    <title>Enkripsi dan Dekripsi by Faizal Dwi Al Farizi</title>
+    <title>AES Cryptography Hub | Faizal Dwi Al Farizi</title>
     <link rel="shortcut icon" href="assets/img/logo/sib.webp" type="image/x-icon">
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
     <script src="plugins/crypto/crypto-js.min.js"></script>
-    <style>
-        .input-faizal {
-            background-color: #000;
-            border: 1px solid #0f0;
-            color: #0f0;
-            outline: #0f0;
-            display: block;
-            width: 100%;
-            padding: .375rem .75rem;
-            font-size: 1rem;
-            font-weight: 400;
-            line-height: 1.5;
-            border-radius: .25rem;
-        }
-
-        .input-faizal::placeholder {
-            color: #0f0;
-            opacity: .5;
-        }
-
-        .input-faizal:focus {
-            border-color: #0f0;
-            /* Warna border hijau saat fokus */
-            outline-color: #0f0;
-            /* Warna outline hijau saat fokus */
-            box-shadow: 0 0 5px #0f0;
-            /* Efek hijau bersinar saat fokus */
-        }
-
-        .button-faizal {
-            background-color: #0f0;
-            border: 1px solid #0f0;
-            color: #000;
-            font-weight: bold;
-        }
-
-        #output {
-            border: 1px solid #0f0;
-        }
-
-        .text-faizal {
-            color: #0f0 !important;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 
-<body style="background-color: #000;">
-    <div class="card-body">
-        <form>
-            <div class="mb-3">
-                <textarea id="inputText" class="input-faizal" style="" placeholder="Tulis Pesan" rows="4"></textarea>
+<body>
+    <!-- Interactive Background Canvas -->
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="glass-container">
+        <!-- Brand Header -->
+        <div class="brand">
+            <h1><i class="fas fa-fingerprint"></i> AES <span class="highlight">Cryptography</span></h1>
+            <p>Enkripsi & Dekripsi oleh <span>Faizal Dwi Al Farizi</span></p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs-navigation">
+            <button type="button" class="tab-btn active" onclick="switchTab('encrypt')">
+                <i class="fas fa-lock"></i> Enkripsi Teks
+            </button>
+            <button type="button" class="tab-btn" onclick="switchTab('decrypt')">
+                <i class="fas fa-unlock"></i> Dekripsi Teks
+            </button>
+        </div>
+
+        <!-- Input Form -->
+        <form id="cryptoForm">
+            <!-- Message Input Area -->
+            <div class="form-group">
+                <label class="form-label" for="inputText">
+                    <span id="inputLabelText">Pesan Teks (Plaintext)</span>
+                    <span class="form-label-extra" id="counter">0 karakter | 0 kata</span>
+                </label>
+                <div class="input-wrapper">
+                    <textarea id="inputText" class="input-premium" rows="5" placeholder="Tulis atau tempelkan teks yang akan dienkripsi di sini..." oninput="updateCounters()"></textarea>
+                </div>
             </div>
-            <div class="mb-3">
-                <input type="text" id="key" class="input-faizal" placeholder="Masukkan kunci">
+
+            <!-- Key Input Area -->
+            <div class="form-group">
+                <label class="form-label" for="key">
+                    <span>Kunci Pengaman (Secret Key)</span>
+                </label>
+                <div class="input-wrapper key-wrapper">
+                    <input type="password" id="key" class="input-premium" placeholder="Masukkan kunci pengaman rahasia...">
+                    <div class="key-actions">
+                        <button type="button" class="key-action-btn" title="Tampilkan/Sembunyikan Kunci" onclick="toggleKeyVisibility()">
+                            <i class="fas fa-eye" id="keyToggleIcon"></i>
+                        </button>
+                        <button type="button" class="key-action-btn" title="Buat Kunci Acak Kuat" onclick="generateRandomKey()">
+                            <i class="fas fa-random"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="d-grid gap-2">
-                <button type="button" class="btn btn-primary button-faizal" onclick="encryptText()">Enkripsi</button>
-                <button type="button" class="btn btn-danger button-faizal" onclick="decryptText()">Dekripsi</button>
+
+            <!-- Trigger Button -->
+            <div class="mt-4">
+                <button type="button" id="actionBtn" class="btn-premium" onclick="processCrypto()">
+                    <i class="fas fa-shield-alt"></i> Enkripsi Sekarang
+                </button>
             </div>
         </form>
-        <div id="output" class="alert mt-4 p-4 rounded position-relative" style="display: none;">
-            <button type="button" class="btn btn-sm btn-success position-absolute top-0 end-0 m-2"
-                onclick="copyToClipboard()">
-                <i class="fas fa-copy"></i> Copy
+
+        <!-- Form Reset controls -->
+        <div class="secondary-controls">
+            <button type="button" class="btn-reset" onclick="resetForm()">
+                <i class="fas fa-undo-alt"></i> Reset Semua
             </button>
-            <h5 class="mb-3 text-faizal" id="keterangan"></h5>
-            <pre id="outputText" class="mb-0 p-3 text-faizal rounded border border-1"
-                style="border: 1px solid #0f0 !important"></pre>
+        </div>
+
+        <!-- Interactive Terminal Output -->
+        <div id="output" class="output-terminal">
+            <div class="terminal-header">
+                <div class="terminal-dots">
+                    <div class="terminal-dot dot-red"></div>
+                    <div class="terminal-dot dot-yellow"></div>
+                    <div class="terminal-dot dot-green"></div>
+                </div>
+                <div class="terminal-title" id="keterangan">HASIL ENKRIPSI</div>
+                <div class="terminal-actions">
+                    <button type="button" class="terminal-btn" id="copyBtn" onclick="copyToClipboard()">
+                        <i class="fas fa-copy" id="copyIcon"></i> <span id="copyText">Salin</span>
+                    </button>
+                    <button type="button" class="terminal-btn btn-download" onclick="downloadResult()">
+                        <i class="fas fa-download"></i> Unduh
+                    </button>
+                </div>
+            </div>
+            <div class="terminal-body">
+                <pre id="outputText" class="terminal-content"></pre>
+            </div>
         </div>
     </div>
 
+    <!-- Script Integrations -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Background Canvas Particles Script -->
     <script>
-        function encryptText() {
-            const text = document.getElementById('inputText').value;
-            const key = document.getElementById('key').value;
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
 
-            if (!text || !key) {
-                alert('Masukkan teks dan kunci untuk dienkripsi!');
-                return;
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const particles = [];
+        const particleCount = 50;
+
+        class Particle {
+            constructor() {
+                this.reset();
             }
 
-            const encrypted = CryptoJS.AES.encrypt(text, key).toString();
-            document.getElementById('keterangan').innerText = "Hasil Enkripsi";
-            document.getElementById('outputText').innerText = `${encrypted}`;
-            document.getElementById('output').style.display = 'block';
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = (Math.random() - 0.5) * 0.4;
+                this.radius = Math.random() * 1.5 + 0.5;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 242, 254, 0.2)';
+                ctx.fill();
+            }
         }
 
-        function decryptText() {
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        let mouse = { x: null, y: null };
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+        window.addEventListener('mouseleave', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+
+                // Draw connections between nodes
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(0, 242, 254, ${0.08 * (1 - dist / 100)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+
+                // Node connection to cursor
+                if (mouse.x !== null && mouse.y !== null) {
+                    const dx = particles[i].x - mouse.x;
+                    const dy = particles[i].y - mouse.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(mouse.x, mouse.y);
+                        ctx.strokeStyle = `rgba(0, 242, 254, ${0.12 * (1 - dist / 150)})`;
+                        ctx.lineWidth = 0.6;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+
+    <!-- Cryptography & UX Control Script -->
+    <script>
+        let currentMode = 'encrypt';
+
+        // SweetAlert Dark Theme Toast Setup
+        function showSwalToast(icon, title) {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2500,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'swal-dark'
+                },
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+            Toast.fire({
+                icon: icon,
+                title: title
+            });
+        }
+
+        // Welcome alert message
+        window.addEventListener('DOMContentLoaded', () => {
+            Swal.fire({
+                title: 'AES Cryptography System',
+                text: 'Selamat datang! Gunakan sistem enkripsi canggih ini untuk mengamankan data atau mendekripsi ciphertext Anda menggunakan sandi AES industri.',
+                icon: 'info',
+                confirmButtonText: 'Mulai Sistem',
+                customClass: {
+                    popup: 'swal-dark',
+                    confirmButton: 'swal-btn-cyan'
+                },
+                buttonsStyling: false
+            });
+        });
+
+        // Tab selection switching
+        function switchTab(mode) {
+            if (currentMode === mode) return;
+            currentMode = mode;
+
+            const tabs = document.querySelectorAll('.tab-btn');
+            const actionBtn = document.getElementById('actionBtn');
+            const inputLabel = document.getElementById('inputLabelText');
+            const inputField = document.getElementById('inputText');
+            const outputTerminal = document.getElementById('output');
+
+            // Toggle active state in UI
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            if (mode === 'encrypt') {
+                tabs[0].classList.add('active');
+                inputLabel.innerText = "Pesan Teks (Plaintext)";
+                inputField.placeholder = "Tulis atau tempelkan teks yang akan dienkripsi di sini...";
+                actionBtn.innerHTML = '<i class="fas fa-lock"></i> Enkripsi Sekarang';
+                actionBtn.className = 'btn-premium';
+                outputTerminal.classList.remove('output-decrypt-mode');
+            } else {
+                tabs[1].classList.add('active');
+                inputLabel.innerText = "Teks Terenkripsi (Ciphertext)";
+                inputField.placeholder = "Tempelkan teks terenkripsi (base64) di sini...";
+                actionBtn.innerHTML = '<i class="fas fa-unlock"></i> Dekripsi Sekarang';
+                actionBtn.className = 'btn-premium btn-decrypt';
+                outputTerminal.classList.add('output-decrypt-mode');
+            }
+
+            // Hide output clean upon switching tabs
+            outputTerminal.style.display = 'none';
+        }
+
+        // Live text counters
+        function updateCounters() {
             const text = document.getElementById('inputText').value;
-            const key = document.getElementById('key').value;
+            const charCount = text.length;
+            const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            document.getElementById('counter').innerText = `${charCount} karakter | ${wordCount} kata`;
+        }
+
+        // Show / Hide encryption key password
+        function toggleKeyVisibility() {
+            const keyInput = document.getElementById('key');
+            const icon = document.getElementById('keyToggleIcon');
+
+            if (keyInput.type === 'password') {
+                keyInput.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                keyInput.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        // Safe secure random key generator
+        function generateRandomKey() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+            let result = '';
+            for (let i = 0; i < 16; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+
+            const keyInput = document.getElementById('key');
+            keyInput.value = result;
+            keyInput.type = 'text';
+            document.getElementById('keyToggleIcon').className = 'fas fa-eye-slash';
+
+            showSwalToast('success', 'Kunci acak aman berhasil dibuat!');
+        }
+
+        // Central process execution
+        function processCrypto() {
+            if (currentMode === 'encrypt') {
+                encryptText();
+            } else {
+                decryptText();
+            }
+        }
+
+        // Encryption logic
+        function encryptText() {
+            const text = document.getElementById('inputText').value.trim();
+            const key = document.getElementById('key').value.trim();
 
             if (!text || !key) {
-                alert('Masukkan teks terenkripsi dan kunci untuk didekripsi!');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Data Tidak Lengkap',
+                    text: 'Harap masukkan teks plaintext dan kunci pengaman terlebih dahulu!',
+                    customClass: {
+                        popup: 'swal-dark',
+                        confirmButton: 'swal-btn-cyan'
+                    },
+                    buttonsStyling: false
+                });
                 return;
             }
 
             try {
-                const decrypted = CryptoJS.AES.decrypt(text, key).toString(CryptoJS.enc.Utf8);
-                if (!decrypted) throw new Error('Kunci salah atau data tidak valid');
-                document.getElementById('keterangan').innerText = "Hasil Dekripsi";
-                document.getElementById('outputText').innerText = `${decrypted}`;
-                document.getElementById('output').style.display = 'block';
+                const encrypted = CryptoJS.AES.encrypt(text, key).toString();
+                document.getElementById('keterangan').innerText = "HASIL ENKRIPSI";
+                document.getElementById('outputText').innerText = encrypted;
+
+                // Show terminal output
+                const outputDiv = document.getElementById('output');
+                outputDiv.style.display = 'block';
+                outputDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                showSwalToast('success', 'Pesan berhasil dienkripsi!');
             } catch (error) {
-                alert('Gagal mendekripsi teks. Periksa kunci dan teks yang dimasukkan!');
+                console.error(error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Enkripsi Gagal',
+                    text: 'Terjadi kesalahan sistem ketika memproses enkripsi data Anda.',
+                    customClass: {
+                        popup: 'swal-dark',
+                        confirmButton: 'swal-btn-cyan'
+                    },
+                    buttonsStyling: false
+                });
             }
         }
 
+        // Decryption logic
+        function decryptText() {
+            const text = document.getElementById('inputText').value.trim();
+            const key = document.getElementById('key').value.trim();
+
+            if (!text || !key) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Data Tidak Lengkap',
+                    text: 'Harap masukkan teks terenkripsi (ciphertext) dan kunci pengaman terlebih dahulu!',
+                    customClass: {
+                        popup: 'swal-dark',
+                        confirmButton: 'swal-btn-cyan'
+                    },
+                    buttonsStyling: false
+                });
+                return;
+            }
+
+            try {
+                const decryptedBytes = CryptoJS.AES.decrypt(text, key);
+                const decrypted = decryptedBytes.toString(CryptoJS.enc.Utf8);
+
+                if (!decrypted) {
+                    throw new Error('Kunci salah atau data tidak valid');
+                }
+
+                document.getElementById('keterangan').innerText = "HASIL DEKRIPSI";
+                document.getElementById('outputText').innerText = decrypted;
+
+                // Show terminal output
+                const outputDiv = document.getElementById('output');
+                outputDiv.style.display = 'block';
+                outputDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                showSwalToast('success', 'Ciphertext berhasil didekripsi!');
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Dekripsi Gagal',
+                    text: 'Gagal mendekripsi ciphertext. Periksa kembali apakah teks terenkripsi valid dan kunci pengaman sudah benar!',
+                    customClass: {
+                        popup: 'swal-dark',
+                        confirmButton: 'swal-btn-cyan'
+                    },
+                    buttonsStyling: false
+                });
+            }
+        }
+
+        // Advanced Copy mechanism with feedback styling
         function copyToClipboard() {
-            const outputText = `${document.getElementById('outputText').innerHTML}`;
+            const outputText = document.getElementById('outputText').innerText;
 
             if (!outputText) {
-                alert('Tidak ada teks untuk disalin!');
+                showSwalToast('error', 'Tidak ada teks untuk disalin!');
                 return;
             }
 
             navigator.clipboard.writeText(outputText).then(() => {
-                alert('Teks hasil berhasil disalin ke clipboard!');
+                const copyBtn = document.getElementById('copyBtn');
+                const copyIcon = document.getElementById('copyIcon');
+                const copyText = document.getElementById('copyText');
+
+                copyBtn.classList.add('btn-copy-success');
+                copyIcon.className = 'fas fa-check';
+                copyText.innerText = 'Tersalin!';
+
+                showSwalToast('success', 'Teks berhasil disalin ke clipboard!');
+
+                setTimeout(() => {
+                    copyBtn.classList.remove('btn-copy-success');
+                    copyIcon.className = 'fas fa-copy';
+                    copyText.innerText = 'Salin';
+                }, 2000);
             }).catch(err => {
-                console.error('Gagal menyalin teks: ', err);
+                console.error('Gagal menyalin: ', err);
+                showSwalToast('error', 'Sistem gagal menyalin teks.');
+            });
+        }
+
+        // File download mechanism (.txt)
+        function downloadResult() {
+            const outputText = document.getElementById('outputText').innerText;
+
+            if (!outputText) {
+                showSwalToast('error', 'Tidak ada teks hasil untuk diunduh!');
+                return;
+            }
+
+            const blob = new Blob([outputText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+
+            const filename = currentMode === 'encrypt' ? 'enkripsi-hasil.txt' : 'dekripsi-hasil.txt';
+
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showSwalToast('success', `Hasil berhasil diunduh sebagai ${filename}`);
+        }
+
+        // Comprehensive form reset
+        function resetForm() {
+            const text = document.getElementById('inputText').value.trim();
+            const key = document.getElementById('key').value.trim();
+
+            if (!text && !key) {
+                showSwalToast('info', 'Formulir sudah bersih.');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Apakah Anda Yakin?',
+                text: 'Seluruh teks isian, kunci pengaman, dan terminal hasil akan dikosongkan secara permanen.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Bersihkan!',
+                cancelButtonText: 'Batal',
+                customClass: {
+                    popup: 'swal-dark',
+                    confirmButton: 'swal-btn-cyan',
+                    cancelButton: 'swal-btn-cancel'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('inputText').value = '';
+                    document.getElementById('key').value = '';
+                    document.getElementById('outputText').innerText = '';
+                    document.getElementById('output').style.display = 'none';
+
+                    // Reset visibility state
+                    const keyInput = document.getElementById('key');
+                    keyInput.type = 'password';
+                    document.getElementById('keyToggleIcon').className = 'fas fa-eye';
+
+                    updateCounters();
+                    showSwalToast('success', 'Semua isian berhasil dibersihkan!');
+                }
             });
         }
     </script>
